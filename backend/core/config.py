@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     # Application
     # ==========================
     APP_NAME: str = "Astra Shield AI"
+    APP_VERSION: str = "0.1.0"
     ENV: str = "development"
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
@@ -30,7 +31,7 @@ class Settings(BaseSettings):
     # ==========================
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
-
+    DATABASE_URL: str      
     NEO4J_URI: str = ""
     NEO4J_USERNAME: str = ""
     NEO4J_PASSWORD: str = ""
