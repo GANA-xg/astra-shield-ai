@@ -38,6 +38,7 @@ class Settings(BaseSettings):
 
     QDRANT_URL: str = ""
     QDRANT_API_KEY: str = ""
+    GOOGLE_SAFE_BROWSING_API_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
