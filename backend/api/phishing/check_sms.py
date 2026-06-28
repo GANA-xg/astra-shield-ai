@@ -1,8 +1,8 @@
-
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import re
+from db.database import get_db
+from db.crud import save_detection
 
 router = APIRouter(
     prefix="/api/phishing",
@@ -75,6 +75,19 @@ def check_sms(request: SMSRequest):
     else:
         level = "LOW"
         recommendation = "Likely safe"
+
+    db = next(get_db())
+
+    save_detection(
+        db=db,
+        scan_type="sms",
+        input_text=text,
+        risk_score=score,
+        risk_level=level,
+        recommendation=recommendation,
+        ml_probability=None,
+        signals=signals,
+    )
 
     return {
         "message": text,
