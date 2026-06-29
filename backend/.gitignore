@@ -22,3 +22,24 @@ htmlcov/
 
 # macOS
 .DS_Store
+
+# Windows
+Thumbs.db
+
+# ML Models
+*.pt
+*.pth
+*.h5
+*.keras
+*.onnx
+*.ckpt
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+# Currency Agent Debug Images
+agents/currency_agent/debug/
+
+# Local testing files
+test_feature_extractor.py
