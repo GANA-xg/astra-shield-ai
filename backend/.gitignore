@@ -43,3 +43,5 @@ agents/currency_agent/debug/
 
 # Local testing files
 test_feature_extractor.py
+
+uploads/
