@@ -57,7 +57,7 @@ def predict_currency(image_path):
 
     return {
         "prediction": label.lower(),
-        "confidence":  float(round(confidence, 2)),
+        "confidence": round(float(confidence), 2),
     }
 
 
