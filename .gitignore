@@ -22,3 +22,7 @@ node_modules/
 # Build
 dist/
 build/
+
+
+# Local sample images
+data/samples/

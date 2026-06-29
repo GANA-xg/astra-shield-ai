@@ -101,3 +101,4 @@ uritemplate==4.2.0
 urllib3==2.6.3
 uvicorn==0.39.0
 zipp==3.23.1
+tensorflow==2.21.0
