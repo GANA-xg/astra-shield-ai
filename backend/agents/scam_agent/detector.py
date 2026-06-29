@@ -1,6 +1,6 @@
 import os
 import json
-
+from .schemas import ScamResponse
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -13,7 +13,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_GEMINI_API_KEY"))
 
 # Create the model
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 def detect_scam(transcript: str):
@@ -45,4 +45,4 @@ Return ONLY valid JSON.
     elif text.startswith("```"):
         text = text.replace("```", "").strip()
 
-    return json.loads(text)
+    return ScamResponse(**json.loads(text))
