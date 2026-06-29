@@ -1,65 +1,154 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+
+import Sidebar from "@/components/Sidebar";
+import Topbar from "@/components/Topbar";
+import MetricCard from "@/components/MetricCard";
+
+import { getHistory, getStats } from "@/lib/api";
+import { DashboardStats, Detection } from "@/types/dashboard";
+
+export default function DashboardHome() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [history, setHistory] = useState<Detection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadDashboard() {
+      setError(null);
+      try {
+        console.log("Loading dashboard...");
+
+        const statsData = await getStats();
+        console.log("Stats:", statsData);
+
+        const historyData = await getHistory();
+        console.log("History:", historyData);
+
+        setStats(statsData);
+        setHistory(historyData);
+      } catch (err) {
+        console.error("Dashboard Error:", err);
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        console.log("Finished loading");
+        setLoading(false);
+      }
+    }
+    loadDashboard();
+
+    const interval = setInterval(() => {
+      loadDashboard();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950">
+
+      <div className="flex">
+
+        <Sidebar />
+
+        <div className="flex-1 p-8">
+
+          <Topbar />
+
+          {loading ? (
+            <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-10 text-center text-white backdrop-blur-xl">
+              Loading Dashboard...
+            </div>
+          ) : error ? (
+            <div className="mt-8 rounded-3xl border border-red-500/30 bg-red-500/10 p-8 text-red-200 backdrop-blur-xl">
+              <h2 className="text-xl font-bold">Failed to load dashboard</h2>
+              <p className="mt-2">{error}</p>
+            </div>
+          ) : (
+            <>
+              <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+                <MetricCard
+                  title="Total Scans"
+                  value={stats?.total_scans ?? 0}
+                  icon="📊"
+                  color="bg-blue-500/20"
+                />
+
+                <MetricCard
+                  title="URL Scans"
+                  value={stats?.scan_types.url ?? 0}
+                  icon="🌐"
+                  color="bg-cyan-500/20"
+                />
+
+                <MetricCard
+                  title="SMS Scans"
+                  value={stats?.scan_types.sms ?? 0}
+                  icon="📱"
+                  color="bg-emerald-500/20"
+                />
+
+                <MetricCard
+                  title="Critical Alerts"
+                  value={stats?.risk_levels.CRITICAL ?? 0}
+                  icon="🚨"
+                  color="bg-red-500/20"
+                />
+
+              </div>
+
+              <div className="mt-10 rounded-3xl border border-white/20 bg-white/10 p-8 backdrop-blur-xl">
+
+                <h2 className="mb-6 text-3xl font-bold text-white">
+                  Live Threat Feed
+                </h2>
+
+                <div className="space-y-4">
+
+                  {history.slice(0, 10).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/30 p-5"
+                    >
+                      <div>
+
+                        <p className="font-semibold text-white">
+                          {item.scan_type.toUpperCase()}
+                        </p>
+
+                        <p className="text-sm text-white/60 truncate max-w-lg">
+                          {item.input_text}
+                        </p>
+
+                      </div>
+
+                      <div className="text-right">
+
+                        <p className="font-bold text-red-300">
+                          {item.risk_level}
+                        </p>
+
+                        <p className="text-white/60">
+                          {item.risk_score}/100
+                        </p>
+
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
+
+              </div>
+            </>
+          )}
+
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+      </div>
+
+    </main>
   );
 }
