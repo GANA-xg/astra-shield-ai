@@ -11,9 +11,11 @@ from api.phishing.check_sms import router as sms_router
 from agents.phishing_agent.feeds.feed_manager import refresh_feeds
 
 
-from agents.currency_agent.router import router as currency_router
+#from agents.currency_agent.router import router as currency_router
+from api.routers.scam import router as scam_router
+from agents.scam_agent.router import router as scam_router
 
-
+#
 setup_logging()
 app = FastAPI(
     title=settings.APP_NAME,
@@ -38,7 +40,9 @@ async def startup_event():
 app.include_router(health_router)
 app.include_router(phishing_router)
 app.include_router(sms_router)
-app.include_router(currency_router)
+#app.include_router(currency_router)
+app.include_router(scam_router)
+app.include_router(scam_router)
 @app.get("/")
 def root():
     return {"message": "Astra Shield AI API is running"}

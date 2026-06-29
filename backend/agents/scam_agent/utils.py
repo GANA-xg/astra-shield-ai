@@ -5,9 +5,9 @@ Utility functions for the Scam Agent.
 from .keywords import SCAM_KEYWORDS
 
 
-def extract_keywords(transcript: str):
+def extract_keywords(transcript: str) -> list[str]:
     """
-    Returns scam keywords found in the transcript.
+    Extract scam-related keywords from the transcript.
     """
 
     transcript = transcript.lower()
@@ -15,7 +15,7 @@ def extract_keywords(transcript: str):
     found = []
 
     for keyword in SCAM_KEYWORDS:
-        if keyword.lower() in transcript:
+        if keyword.lower() in transcript and keyword not in found:
             found.append(keyword)
 
     return found

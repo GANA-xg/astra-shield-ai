@@ -1,34 +1,75 @@
 """
-Common scam-related keywords.
+Scam-related keywords used for initial rule-based detection.
 """
 
 SCAM_KEYWORDS = [
+    # Banking
     "otp",
-    "password",
-    "bank",
+    "one time password",
+    "bank account",
     "account blocked",
-    "verify",
-    "verification",
+    "account suspended",
     "kyc",
+    "verify your account",
+    "update kyc",
+    "debit card",
+    "credit card",
+    "cvv",
+    "atm card",
+    "net banking",
+
+    # Payments
     "upi",
-    "gift",
-    "reward",
-    "lottery",
+    "google pay",
+    "phonepe",
+    "paytm",
+    "payment link",
+    "refund",
+    "cashback",
+
+    # Urgency
     "urgent",
     "immediately",
-    "click this link",
-    "share your screen",
-    "remote access",
+    "right now",
+    "within 10 minutes",
+    "limited time",
+    "last warning",
+    "final notice",
+
+    # Government / Police
     "aadhaar",
-    "pan",
-    "credit card",
-    "debit card",
-    "cvv",
+    "pan card",
+    "income tax",
     "police",
-    "digital arrest",
-    "customs",
-    "courier",
+    "cyber crime",
+    "court notice",
+
+    # Remote Access
+    "anydesk",
+    "teamviewer",
+    "screen share",
+    "install app",
+    "download app",
+
+    # Financial Fraud
+    "lottery",
+    "prize",
+    "reward",
+    "gift",
     "investment",
     "crypto",
-    "loan approval",
+    "bitcoin",
+
+    # Threats
+    "your account will be closed",
+    "your sim will be blocked",
+    "legal action",
+    "arrest warrant",
+    "fine",
+
+    # Credentials
+    "password",
+    "pin",
+    "security code",
+    "verification code"
 ]
