@@ -19,6 +19,8 @@ export default function CurrencyScanner() {
 
     if (!file) return;
 
+    if (preview) URL.revokeObjectURL(preview);
+
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
 
@@ -49,6 +51,7 @@ export default function CurrencyScanner() {
   }
 
   function handleReset() {
+    if (preview) URL.revokeObjectURL(preview);
     setSelectedFile(null);
     setPreview(null);
     setPrediction("");
