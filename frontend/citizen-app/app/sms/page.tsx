@@ -3,35 +3,11 @@
 import { useState } from "react";
 
 import Navbar from "@/components/Navbar";
-import { analyzeSMS } from "@/lib/api";
+import SMSScanner from "@/components/SMSScanner";
 import { SMSResponse } from "@/types/phishing";
 
 export default function SMSPage() {
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SMSResponse | null>(null);
-  const [error, setError] = useState("");
-
-  async function handleAnalyze() {
-    if (!message.trim()) {
-      setError("Please enter an SMS message.");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setResult(null);
-
-    try {
-      const response = await analyzeSMS(message);
-      setResult(response);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to analyze SMS.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const badgeColor =
     result?.risk_level === "CRITICAL"
@@ -57,27 +33,7 @@ export default function SMSPage() {
             Detect phishing, scam and malicious SMS messages using AI and threat intelligence.
           </p>
 
-          <textarea
-            rows={6}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Paste the SMS message here..."
-            className="w-full rounded-2xl border border-white/20 bg-white/10 p-5 text-white placeholder:text-white/50 backdrop-blur-xl focus:border-blue-400 focus:outline-none"
-          />
-
-          <button
-            onClick={handleAnalyze}
-            disabled={loading}
-            className="mt-5 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 py-4 font-semibold text-white shadow-lg transition hover:scale-[1.02] hover:shadow-blue-500/40 disabled:bg-gray-400"
-          >
-            {loading ? "Analyzing..." : "Analyze SMS"}
-          </button>
-
-          {error && (
-            <div className="mt-5 rounded-lg bg-red-100 p-4 text-red-700">
-              {error}
-            </div>
-          )}
+          <SMSScanner onResult={setResult} />
 
           {result && (
             <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-xl">
