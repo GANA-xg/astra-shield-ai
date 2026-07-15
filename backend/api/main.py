@@ -9,12 +9,22 @@ from api.routers.health import router as health_router
 from api.phishing_routes import router as phishing_router
 from api.phishing.check_sms import router as sms_router
 from agents.phishing_agent.feeds.feed_manager import refresh_feeds
+
+# from agents.currency_agent.router import router as currency_router
+from api.routers.scam import router as scam_router
+from agents.scam_agent.router import router as scam_router
+
+# Citizen Safety Assistant
+from api.routers import citizen
+
 setup_logging()
+
 app = FastAPI(
     title=settings.APP_NAME,
     version="0.1.0",
     description="AI-powered cybersecurity platform for phishing detection",
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -27,14 +37,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(LoggingMiddleware)
+
+
 @app.on_event("startup")
 async def startup_event():
     refresh_feeds()
+
+
 app.include_router(health_router)
+app.include_router(citizen.router)
 app.include_router(phishing_router)
 app.include_router(sms_router)
+
+# app.include_router(currency_router)
+
+app.include_router(scam_router)
+app.include_router(scam_router)
+
+
 @app.get("/")
 def root():
     return {"message": "Astra Shield AI API is running"}
