@@ -24,8 +24,6 @@ def calculate_risk(
     llm_result=None,
 ):
     age = features.get("domain_age_days")
-    tld = features.get("tld")
-    brand = features.get("brand")
 
     score = 0
     signals = []
@@ -41,15 +39,33 @@ def calculate_risk(
 
     if features.get("suspicious_tld"):
         score += 25
-        signals.append(f"Suspicious TLD: {tld}")
+        signals.append(f"Suspicious TLD: {features.get('tld')}")
 
     if features.get("brand_impersonation"):
         score += 35
-        signals.append(f"Possible {brand} impersonation")
+        brand_name = features.get("brand_name", "unknown")
+        signals.append(f"Possible {brand_name} impersonation")
 
     if features.get("ip_url"):
         score += 30
         signals.append("IP-based URL")
+
+    # Phishing keywords in domain/path
+    kw_count = features.get("keyword_count", 0)
+    if kw_count > 0:
+        score += kw_count * 10
+        signals.append(f"Suspicious keywords in URL ({kw_count})")
+
+    # Multiple subdomains (e.g. secure.login.bank.evil.com)
+    sub_count = features.get("subdomain_count", 0)
+    if sub_count >= 2:
+        score += min(sub_count * 8, 25)
+        signals.append(f"Multiple subdomains ({sub_count})")
+
+    # Non-HTTPS on a credential-oriented URL
+    if not features.get("https", True) and kw_count > 0:
+        score += 10
+        signals.append("No HTTPS with suspicious keywords")
 
     # ML Model
     if ml_probability is not None:

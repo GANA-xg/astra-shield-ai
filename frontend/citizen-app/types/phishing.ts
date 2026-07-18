@@ -2,9 +2,9 @@ export interface URLAnalysisResponse {
   url: string;
   domain: string;
 
-  features: Record<string, any>;
+  features: Record<string, unknown>;
 
-  safe_browsing: Record<string, any>;
+  safe_browsing: Record<string, unknown>;
 
   blacklists: Record<string, boolean>;
 

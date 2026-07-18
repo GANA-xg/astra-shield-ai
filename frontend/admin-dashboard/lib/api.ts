@@ -2,10 +2,8 @@ import { DashboardStats, Detection } from "@/types/dashboard";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-console.log("API URL:", BASE_URL);
 
 export async function getStats(): Promise<DashboardStats> {
-  console.log(`${BASE_URL}/api/phishing/stats`);
   const res = await fetch(
     `${BASE_URL}/api/phishing/stats`,
     {
@@ -16,7 +14,14 @@ export async function getStats(): Promise<DashboardStats> {
   if (!res.ok)
     throw new Error("Failed to fetch stats");
 
-  return res.json();
+  const data = await res.json();
+
+  // Handle DB-unavailable response gracefully
+  if (data.error) {
+    return { total_scans: 0, scan_types: {}, risk_levels: {} };
+  }
+
+  return data;
 }
 
 export async function getHistory(): Promise<Detection[]> {
@@ -30,5 +35,12 @@ export async function getHistory(): Promise<Detection[]> {
   if (!res.ok)
     throw new Error("Failed to fetch history");
 
-  return res.json();
+  const data = await res.json();
+
+  // Handle DB-unavailable response gracefully
+  if (data.error) {
+    return [];
+  }
+
+  return data;
 }

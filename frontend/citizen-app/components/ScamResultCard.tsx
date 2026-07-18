@@ -1,76 +1,44 @@
+interface ScamResult {
+  is_scam: boolean;
+  scam_type: string;
+  confidence: number;
+  reason: string;
+  risk_score: number;
+  detected_keywords: string[];
+  recommendation: string[];
+}
+
 interface Props {
-  result: any;
+  result: ScamResult;
 }
 
 export default function ScamResultCard({ result }: Props) {
   if (!result) return null;
-
   return (
-    <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl">
-
-      <h2 className="text-3xl font-bold text-white mb-5">
-
+    <div className="mt-6 card-flat p-6">
+      <h3 className="text-xl font-semibold text-[var(--ink)] mb-5">
         {result.is_scam ? "🚨 Scam Detected" : "✅ Safe Call"}
-
-      </h2>
-
-      <div className="space-y-3 text-white">
-
-        <p>
-          <strong>Scam Type:</strong> {result.scam_type}
-        </p>
-
-        <p>
-          <strong>Confidence:</strong> {result.confidence}
-        </p>
-
-        <p>
-          <strong>Reason:</strong>
-        </p>
-
-        <p className="text-white/80">
-          {result.reason}
-        </p>
-
+      </h3>
+      <div className="space-y-3 text-[var(--ink)]">
+        <p><span className="text-[var(--muted)]">Scam Type:</span> {result.scam_type}</p>
+        <p><span className="text-[var(--muted)]">Confidence:</span> {result.confidence}</p>
+        <p><span className="text-[var(--muted)]">Reason:</span></p>
+        <p className="text-[var(--body)]">{result.reason}</p>
         <div>
-
-          <h3 className="font-bold mt-5">
-            Detected Keywords
-          </h3>
-
+          <h4 className="font-semibold mt-5 text-[var(--ink)]">Detected Keywords</h4>
           <div className="flex flex-wrap gap-2 mt-2">
-
             {result.detected_keywords?.map((k: string) => (
-              <span
-                key={k}
-                className="bg-red-600 rounded-full px-3 py-1 text-sm"
-              >
-                {k}
-              </span>
+              <span key={k} className="badge-critical">{k}</span>
             ))}
-
           </div>
-
         </div>
-
         <div>
-
-          <h3 className="font-bold mt-5">
-            Recommendations
-          </h3>
-
-          <ul className="list-disc ml-6 mt-2">
-
-            {result.recommendation?.map((r: string) => (
-              <li key={r}>{r}</li>
-            ))}
-
+          <h4 className="font-semibold mt-5 text-[var(--ink)]">Recommendations</h4>
+          <ul className="list-disc ml-6 mt-2 text-[var(--body)]">
+            {result.recommendation?.map((r: string) => <li key={r}>{r}</li>)}
           </ul>
-
         </div>
-
       </div>
-
     </div>
   );
 }

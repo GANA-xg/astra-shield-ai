@@ -2,67 +2,93 @@
 
 import { useState } from "react";
 import { URLAnalysisResponse } from "@/types/phishing";
-import ScamResultCard from "@/components/ScamResultCard";
+import AgentPage from "@/components/AgentPage";
 import URLScanner from "@/components/URLScanner";
-import Navbar from "@/components/Navbar";
 
 export default function PhishingPage() {
   const [result, setResult] = useState<URLAnalysisResponse | null>(null);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8">
-      <div className="mx-auto max-w-6xl">
-        <Navbar />
+    <AgentPage
+      title="Phishing Detection"
+      description="Scan websites and links in real time to detect phishing attempts using AI, Google Safe Browsing, and threat intelligence."
+    >
+      <div className="card-flat p-6">
+        <URLScanner onResult={setResult} />
 
-        <div className="rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-2xl">
-          <div className="mb-8">
-            <h2 className="mb-2 text-4xl font-extrabold text-white">
-              🌐 URL Phishing Scanner
-            </h2>
+        {result && (
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`text-xl font-semibold ${
+                result.risk_level === "LOW" ? "text-[var(--success)]"
+                : result.risk_level === "MEDIUM" ? "text-[var(--warning)]"
+                : result.risk_level === "HIGH" ? "text-[#f97316]"
+                : "text-[var(--error)]"
+              }`}>
+                {result.risk_level === "LOW" ? "✅ " : "⚠️ "}
+                {result.risk_level} Risk
+              </h3>
+              <span className="text-sm text-[var(--muted)] font-mono">{result.domain}</span>
+            </div>
 
-            <p className="text-white/70">
-              Analyze websites in real time using AI, Google Safe Browsing,
-              and multiple threat intelligence sources.
-            </p>
+            <p className="text-[var(--body)] mb-4">{result.recommendation}</p>
+
+            {result.signals.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-medium text-[var(--muted)] mb-2">Signals</p>
+                <div className="flex flex-wrap gap-2">
+                  {result.signals.map((s, i) => (
+                    <span key={i} className="badge badge-low">{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className="card-flat p-3">
+                <p className="text-[var(--muted)] text-xs">Risk Score</p>
+                <p className={`text-lg font-semibold ${
+                  result.risk_level === "LOW" ? "text-[var(--success)]"
+                  : result.risk_level === "MEDIUM" ? "text-[var(--warning)]"
+                  : result.risk_level === "HIGH" ? "text-[#f97316]"
+                  : "text-[var(--error)]"
+                }`}>{result.risk_score}</p>
+              </div>
+              <div className="card-flat p-3">
+                <p className="text-[var(--muted)] text-xs">ML Probability</p>
+                <p className="text-lg font-semibold text-[var(--ink)]">{(result.ml_probability * 100).toFixed(2)}%</p>
+              </div>
+              <div className="card-flat p-3">
+                <p className="text-[var(--muted)] text-xs">Safe Browsing</p>
+                <p className={`text-lg font-semibold ${result.safe_browsing?.malicious ? "text-[var(--error)]" : "text-[var(--success)]"}`}>
+                  {result.safe_browsing?.malicious ? "Malicious" : "Clean"}
+                </p>
+              </div>
+              <div className="card-flat p-3">
+                <p className="text-[var(--muted)] text-xs">Blacklists</p>
+                <p className={`text-lg font-semibold ${Object.values(result.blacklists ?? {}).some(Boolean) ? "text-[var(--error)]" : "text-[var(--success)]"}`}>
+                  {Object.values(result.blacklists ?? {}).some(Boolean) ? "Flagged" : "None"}
+                </p>
+              </div>
+            </div>
           </div>
+        )}
+      </div>
 
-          <URLScanner onResult={setResult} />
-
-          {result && <ScamResultCard result={result} />}
-
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/15">
-              <h4 className="text-lg font-bold text-white">
-                🛡 Google Safe Browsing
-              </h4>
-
-              <p className="mt-3 text-sm leading-6 text-white/70">
-                Live reputation checks against Google's threat intelligence.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/15">
-              <h4 className="text-lg font-bold text-white">
-                🤖 Machine Learning
-              </h4>
-
-              <p className="mt-3 text-sm leading-6 text-white/70">
-                XGBoost phishing classifier trained on phishing URL datasets.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:bg-white/15">
-              <h4 className="text-lg font-bold text-white">
-                🌍 Threat Intelligence
-              </h4>
-
-              <p className="mt-3 text-sm leading-6 text-white/70">
-                OpenPhish feed integration with automatic refresh.
-              </p>
-            </div>
-          </div>
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="card p-5">
+          <h4 className="text-base font-semibold text-[var(--ink)] mb-2">Google Safe Browsing</h4>
+          <p className="text-sm text-[var(--body)] leading-relaxed">Live reputation checks against Google&apos;s threat intelligence database.</p>
+        </div>
+        <div className="card p-5">
+          <h4 className="text-base font-semibold text-[var(--ink)] mb-2">Machine Learning</h4>
+          <p className="text-sm text-[var(--body)] leading-relaxed">XGBoost phishing classifier trained on real-world phishing URL datasets.</p>
+        </div>
+        <div className="card p-5">
+          <h4 className="text-base font-semibold text-[var(--ink)] mb-2">Threat Intelligence</h4>
+          <p className="text-sm text-[var(--body)] leading-relaxed">OpenPhish feed integration with automatic refresh for latest threats.</p>
         </div>
       </div>
-    </main>
+    </AgentPage>
   );
 }

@@ -5,6 +5,8 @@ export interface Detection {
   risk_score: number;
   risk_level: string;
   recommendation: string;
+  ml_probability?: number | null;
+  signals?: string[];
   created_at: string;
 }
 

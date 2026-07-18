@@ -17,21 +17,34 @@ SUSPICIOUS_TLDS = {
     ".gq",
     ".work",
     ".support",
+    ".site",
+    ".online",
+    ".live",
+    ".shop",
+    ".cc",
+    ".info",
+    ".bid",
+    ".trade",
+    ".review",
+    ".download",
+    ".loan",
+    ".men",
+    ".rest",
+    ".host",
+    ".stream",
 }
 
 
-INDIAN_BRANDS = {
-    "rbi",
-    "sbi",
-    "hdfc",
-    "icici",
-    "aadhaar",
-    "uidai",
-    "irctc",
-    "npci",
-    "paytm",
-    "phonepe",
-    "gpay",
+KNOWN_BRANDS = {
+    # Indian
+    "rbi", "sbi", "hdfc", "icici", "aadhaar", "uidai", "irctc",
+    "npci", "paytm", "phonepe", "gpay",
+    # Global
+    "google", "gmail", "youtube", "paypal", "apple", "icloud",
+    "amazon", "prime", "microsoft", "office365", "outlook",
+    "netflix", "facebook", "fb", "instagram", "whatsapp",
+    "twitter", "linkedin", "chase", "wellsfargo", "citibank",
+    "capitalone", "americanexpress", "amex", "dropbox", "adobe",
 }
 
 
@@ -128,30 +141,29 @@ def extract_features(url: str) -> dict:
     # Suspicious TLD
     #################################################
 
-    features["suspicious_tld"] = any(
-        domain.endswith(tld)
-        for tld in SUSPICIOUS_TLDS
-    )
+    tld = next((t for t in SUSPICIOUS_TLDS if domain.endswith(t)), None)
+    features["suspicious_tld"] = tld is not None
+    features["tld"] = tld or ("." + parts[-1] if len(parts) > 1 else None)
 
     #################################################
     # Brand impersonation
     #################################################
 
-    label = domain.split(".")[0].lower()
-
+    domain_lower = domain.lower()
     features["brand_impersonation"] = False
     features["brand_name"] = None
 
-    for brand in INDIAN_BRANDS:
-
-        if (
-            label.startswith(brand + "-")
-            or label.endswith("-" + brand)
-            or f"-{brand}-" in label
-        ):
-
-            features["brand_impersonation"] = True
-            features["brand_name"] = brand.upper()
+    for brand in KNOWN_BRANDS:
+        for segment in domain_lower.split("."):
+            if brand == segment or any(part == brand for part in segment.split("-")):
+                # Skip if brand IS the actual second-level domain (legitimate site)
+                sld = domain_lower.split(".")[-2] if len(domain_lower.split(".")) >= 2 else ""
+                if sld and brand == sld:
+                    continue
+                features["brand_impersonation"] = True
+                features["brand_name"] = brand.upper()
+                break
+        if features["brand_impersonation"]:
             break
 
     #################################################
@@ -218,8 +230,12 @@ def extract_features(url: str) -> dict:
 
     text = (domain + path).lower()
 
+    # Split by non-alphanumeric characters for whole-word matching
+    segments = __import__("re").split(r"[^a-z0-9]+", text)
+    segments_set = {s for s in segments if s}
+
     features["keyword_count"] = sum(
-        keyword in text
+        keyword in segments_set
         for keyword in SUSPICIOUS_KEYWORDS
     )
 

@@ -4,19 +4,14 @@ interface Props {
 
 export default function TranscriptBox({ transcript }: Props) {
   return (
-    <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-xl">
-
-      <h2 className="text-xl font-bold text-white mb-4">
-        Transcript
-      </h2>
-
+    <div className="card-flat p-6">
+      <h3 className="text-lg font-semibold text-[var(--ink)] mb-4">Transcript</h3>
       <textarea
         value={transcript}
         readOnly
         rows={8}
-        className="w-full rounded-xl bg-slate-900/60 text-white p-4 border border-white/10"
+        className="input-field h-auto min-h-[120px] resize-none bg-[var(--surface-soft)]"
       />
-
     </div>
   );
 }

@@ -10,9 +10,8 @@ from api.phishing_routes import router as phishing_router
 from api.phishing.check_sms import router as sms_router
 from agents.phishing_agent.feeds.feed_manager import refresh_feeds
 
-# from agents.currency_agent.router import router as currency_router
+from agents.currency_agent.router import router as currency_router
 from api.routers.scam import router as scam_router
-from agents.scam_agent.router import router as scam_router
 
 # Citizen Safety Assistant
 from api.routers import citizen
@@ -27,12 +26,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-    ],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,9 +46,8 @@ app.include_router(citizen.router)
 app.include_router(phishing_router)
 app.include_router(sms_router)
 
-# app.include_router(currency_router)
+app.include_router(currency_router)
 
-app.include_router(scam_router)
 app.include_router(scam_router)
 
 

@@ -1,0 +1,274 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --color-primary: #ff385c;
+  --color-primary-active: #e00b41;
+  --color-primary-disabled: #ffd1da;
+  --color-canvas: #0f0f0f;
+  --color-surface-soft: #1a1a1a;
+  --color-surface-strong: #222222;
+  --color-surface-elevated: #2a2a2a;
+  --color-hairline: #333333;
+  --color-hairline-soft: #2a2a2a;
+  --color-border-strong: #444444;
+  --color-ink: #f5f5f5;
+  --color-body: #cccccc;
+  --color-muted: #888888;
+  --color-muted-soft: #666666;
+  --color-on-primary: #ffffff;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ff385c;
+  --color-info: #3b82f6;
+  --spacing-section: 64px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  scroll-behavior: smooth;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+.card {
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02), 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.card-flat {
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-sm);
+  padding: 14px 24px;
+  height: 48px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-active);
+}
+
+.btn-primary:disabled {
+  background: var(--color-primary-disabled);
+  color: var(--color-on-primary);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: 14px 24px;
+  height: 48px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-elevated);
+}
+
+.btn-pill {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-full);
+  padding: 10px 20px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.29;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-pill:hover {
+  background: var(--color-primary-active);
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--color-ink);
+  cursor: pointer;
+  padding: 0;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+.btn-text:hover {
+  text-decoration: underline;
+}
+
+/* ── Risk Badges ────────────────────────────────────── */
+.badge-critical {
+  background: rgba(255, 56, 92, 0.2);
+  color: #ff6b8a;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.badge-high {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.badge-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+.badge-low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-radius: var(--radius-full);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.18;
+}
+
+/* ── Input Fields ───────────────────────────────────── */
+.input-field {
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  height: 48px;
+  padding: 14px 16px;
+  color: var(--color-ink);
+  font-size: 16px;
+  line-height: 1.5;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.input-field::placeholder {
+  color: var(--color-muted);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-ink);
+  border-width: 2px;
+}
+
+/* ── Risk Meter ─────────────────────────────────────── */
+.risk-meter {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-soft);
+  overflow: hidden;
+}
+
+.risk-meter-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.risk-meter-fill.critical {
+  background: var(--color-error);
+}
+
+.risk-meter-fill.high {
+  background: #f97316;
+}
+
+.risk-meter-fill.medium {
+  background: var(--color-warning);
+}
+
+.risk-meter-fill.low {
+  background: var(--color-success);
+}
+
+/* ── Navigation ─────────────────────────────────────── */
+.nav-item {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-ink);
+}
+
+.nav-item.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
