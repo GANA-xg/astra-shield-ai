@@ -1,7 +1,7 @@
 from neo4j import Driver
 
 from graph.connection import driver
-
+from core.config import settings
 
 class GraphService:
     def __init__(self, neo4j_driver: Driver = driver):
@@ -26,7 +26,9 @@ class GraphService:
             p.email=$email
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 person_id=person_id,
@@ -54,7 +56,9 @@ class GraphService:
             a.balance=$balance
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 account_number=account_number,
@@ -82,7 +86,9 @@ class GraphService:
             d.location=$location
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 device_id=device_id,
@@ -111,7 +117,9 @@ class GraphService:
             t.timestamp=datetime()
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 transaction_id=transaction_id,
@@ -136,7 +144,9 @@ class GraphService:
         MERGE (p)-[:OWNS]->(a)
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 person_id=person_id,
@@ -155,7 +165,9 @@ class GraphService:
         MERGE (p)-[:USES]->(d)
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 person_id=person_id,
@@ -177,7 +189,9 @@ class GraphService:
         MERGE (tx)-[:RECEIVED_BY]->(receiver)
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(
+            database=settings.NEO4J_DATABASE
+        ) as session:
             session.run(
                 query,
                 sender=sender_account,

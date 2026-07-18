@@ -11,8 +11,8 @@ from api.phishing.check_sms import router as sms_router
 from agents.phishing_agent.feeds.feed_manager import refresh_feeds
 
 # from agents.currency_agent.router import router as currency_router
-from api.routers.scam import router as scam_router
 from agents.scam_agent.router import router as scam_router
+from agents.fraud_graph_agent.router import router as fraud_router
 
 # Citizen Safety Assistant
 from api.routers import citizen
@@ -53,7 +53,7 @@ app.include_router(sms_router)
 # app.include_router(currency_router)
 
 app.include_router(scam_router)
-app.include_router(scam_router)
+app.include_router(fraud_router)
 
 
 @app.get("/")
