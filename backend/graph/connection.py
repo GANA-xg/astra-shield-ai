@@ -1,17 +1,28 @@
-<<<<<<< HEAD
+import os
+import traceback
+
+import certifi
+
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
+from neo4j import GraphDatabase, READ_ACCESS
 from core.config import settings
+from core.logging import logger
 
 driver = None
 
 
 def _get_driver():
-    """Lazy-init the Neo4j driver so import doesn't crash when neo4j isn't installed."""
+    """Lazy-init the Neo4j driver as a singleton so import doesn't crash."""
     global driver
     if driver is not None:
         return driver
-    try:
-        from neo4j import GraphDatabase
 
+    if not settings.NEO4J_URI or not settings.NEO4J_USERNAME or not settings.NEO4J_PASSWORD:
+        logger.warning("Neo4j not configured — skipping driver creation")
+        return None
+
+    try:
         driver = GraphDatabase.driver(
             settings.NEO4J_URI,
             auth=(
@@ -19,15 +30,30 @@ def _get_driver():
                 settings.NEO4J_PASSWORD,
             ),
         )
+        logger.info("Neo4j driver created (%s)", settings.NEO4J_URI)
     except Exception:
+        logger.error("Failed to create Neo4j driver:\n%s", traceback.format_exc())
         driver = None
+
     return driver
 
 
+def _session():
+    """Open a read-only session against Neo4j Aura.
+
+    Aura single-node clusters do not provide a separate WRITE endpoint,
+    so all queries must be routed as READ_ACCESS.
+    """
+    d = _get_driver()
+    if d is None:
+        return None
+    return d.session(
+        database=settings.NEO4J_DATABASE or None,
+        default_access_mode=READ_ACCESS,
+    )
+
+
 def check_neo4j_connection() -> bool:
-    """
-    Verify that the application can connect to Neo4j.
-    """
     d = _get_driver()
     if d is None:
         return False
@@ -36,58 +62,14 @@ def check_neo4j_connection() -> bool:
         d.verify_connectivity()
         return True
     except Exception:
+        logger.error("Neo4j connectivity check failed:\n%s", traceback.format_exc())
         return False
 
 
 def close_neo4j_connection() -> None:
-    """
-    Close the Neo4j driver cleanly.
-    """
     global driver
     if driver is not None:
         try:
             driver.close()
-        except Exception:
-            pass
-        driver = None
-=======
-import os
-import certifi
-
-os.environ["SSL_CERT_FILE"] = certifi.where()
-
-from neo4j import GraphDatabase
-from core.config import settings
-
-driver = GraphDatabase.driver(
-    settings.NEO4J_URI,
-    auth=(
-        settings.NEO4J_USERNAME,
-        settings.NEO4J_PASSWORD,
-    ),
-)
-
-def check_neo4j_connection():
-    try:
-        print("URI:", settings.NEO4J_URI)
-        print("USERNAME:", settings.NEO4J_USERNAME)
-        print("DATABASE:", settings.NEO4J_DATABASE)
-
-        driver.verify_connectivity()
-
-        with driver.session(database=settings.NEO4J_DATABASE) as session:
-            result = session.run("RETURN 1 AS n")
-            print(result.single())
-
-        print("✅ Connected Successfully")
-        return True
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return False
-
-
-def close_neo4j_connection():
-    driver.close()
->>>>>>> origin/main
+        finally:
+            driver = None

@@ -35,7 +35,6 @@ export async function getHistory(): Promise<Detection[]> {
   if (!res.ok)
     throw new Error("Failed to fetch history");
 
-<<<<<<< HEAD
   const data = await res.json();
 
   // Handle DB-unavailable response gracefully
@@ -44,9 +43,6 @@ export async function getHistory(): Promise<Detection[]> {
   }
 
   return data;
-}
-=======
-  return res.json();
 }
 
 // ==============================
@@ -113,4 +109,3 @@ export async function getShortestPath(
 
   return res.json();
 }
->>>>>>> origin/main

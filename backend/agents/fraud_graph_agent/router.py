@@ -1,8 +1,15 @@
+from pydantic import BaseModel
+
 from fastapi import APIRouter
 
 from agents.fraud_graph_agent.service import (
     fraud_graph_service,
 )
+
+
+class GraphQuery(BaseModel):
+    query: str
+
 
 router = APIRouter(
     prefix="/fraud",
@@ -15,6 +22,11 @@ def ping():
     return {
         "status": "Fraud Graph Agent Working"
     }
+
+
+@router.post("/graph")
+def graph_analysis(body: GraphQuery):
+    return fraud_graph_service.build_graph(body.query)
 
 
 @router.get("/money-mules")

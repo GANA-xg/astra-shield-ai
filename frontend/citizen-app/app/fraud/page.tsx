@@ -28,33 +28,52 @@ export default function FraudPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<FraudGraph | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const analyzeGraph = async () => {
     if (!input.trim()) return;
     setLoading(true);
+    setError(null);
+    setResult(null);
+
     try {
-      const res = await fetch(`${API_URL}/fraud/graph`, {
+      const url = `${API_URL}/fraud/graph`;
+      console.debug("[FraudGraph] POST", url, { query: input });
+
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: input }),
       });
-      const data = await res.json();
-      setResult(data);
-    } catch {
-      setResult({
-        nodes: [
-          { id: "1", type: "phone", value: input, risk: "high" },
-          { id: "2", type: "account", value: "Linked Account", risk: "medium" },
-          { id: "3", type: "url", value: "Suspicious URL", risk: "high" },
-        ],
-        edges: [
-          { from: "1", to: "2", relation: "calls" },
-          { from: "2", to: "3", relation: "uses" },
-        ],
-        summary: "Unable to connect to backend. Showing sample fraud network for demonstration.",
-      });
+
+      const body = await res.json();
+
+      if (!res.ok) {
+        console.warn("[FraudGraph] HTTP", res.status, body);
+        setError(`Server returned ${res.status}: ${body?.detail ?? "Unknown error"}`);
+        return;
+      }
+
+      const graph = body as FraudGraph;
+      console.debug("[FraudGraph] response", graph);
+
+      if (!Array.isArray(graph.nodes)) {
+        console.warn("[FraudGraph] response missing nodes array", graph);
+        setError("Unexpected response format from server");
+        return;
+      }
+
+      setResult(graph);
+    } catch (err) {
+      console.error("[FraudGraph] Network error:", err);
+      setError(
+        err instanceof Error
+          ? `Network error: ${err.message}`
+          : "An unexpected error occurred"
+      );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const riskColor = (risk: string) =>
@@ -107,57 +126,79 @@ export default function FraudPage() {
           </button>
         </div>
 
-        {result && (
+        {/* Error state */}
+        {error && (
+          <div className="mt-8 p-4 rounded-xl bg-[var(--surface-soft)] border border-[var(--error)]">
+            <div className="flex items-start gap-3">
+              <span className="text-lg">⚠️</span>
+              <div>
+                <p className="text-sm font-medium text-[var(--ink)]">Unable to complete analysis</p>
+                <p className="text-sm text-[var(--body)] mt-1">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && !error && (
           <div className="mt-8">
             {/* Summary */}
             <div className="mb-6 p-4 rounded-xl bg-[var(--surface-soft)] border border-[var(--hairline)]">
               <p className="text-sm text-[var(--body)] leading-relaxed">{result.summary}</p>
             </div>
 
-            {/* Graph Visualization */}
-            <div className="relative min-h-[300px] rounded-xl bg-[var(--canvas)] border border-[var(--hairline)] p-6 overflow-hidden">
-              {/* Nodes */}
-              <div className="flex flex-wrap justify-center gap-6 relative z-10">
-                {result.nodes.map((node) => (
-                  <div
-                    key={node.id}
-                    className="flex flex-col items-center gap-2"
-                  >
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${riskColor(node.risk)}`}>
-                      {typeIcon(node.type)}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs font-medium text-[var(--ink)] max-w-[100px] truncate">{node.value}</p>
-                      <p className="text-[10px] text-[var(--muted)] capitalize">{node.type}</p>
-                    </div>
-                  </div>
-                ))}
+            {/* Empty state */}
+            {result.nodes.length === 0 && (
+              <div className="relative min-h-[200px] rounded-xl bg-[var(--canvas)] border border-[var(--hairline)] p-6 flex items-center justify-center">
+                <p className="text-sm text-[var(--muted)]">No entities found in the fraud network.</p>
               </div>
+            )}
 
-              {/* Edges (simplified visualization) */}
-              {result.edges.length > 0 && (
-                <div className="mt-8 space-y-2">
-                  <p className="text-xs font-medium text-[var(--muted)] mb-3">Connections</p>
-                  {result.edges.map((edge, i) => {
-                    const fromNode = result.nodes.find(n => n.id === edge.from);
-                    const toNode = result.nodes.find(n => n.id === edge.to);
-                    return (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <span className="text-[var(--ink)]">{fromNode?.value}</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                        <span className="text-[var(--muted)] italic">{edge.relation}</span>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                        <span className="text-[var(--ink)]">{toNode?.value}</span>
+            {/* Graph Visualization */}
+            {result.nodes.length > 0 && (
+              <div className="relative min-h-[300px] rounded-xl bg-[var(--canvas)] border border-[var(--hairline)] p-6 overflow-hidden">
+                <div className="flex flex-wrap justify-center gap-6 relative z-10">
+                  {result.nodes.map((node) => (
+                    <div
+                      key={node.id}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${riskColor(node.risk)}`}>
+                        {typeIcon(node.type)}
                       </div>
-                    );
-                  })}
+                      <div className="text-center">
+                        <p className="text-xs font-medium text-[var(--ink)] max-w-[100px] truncate">{node.value}</p>
+                        <p className="text-[10px] text-[var(--muted)] capitalize">{node.type}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
+
+                {/* Edges */}
+                {result.edges.length > 0 && (
+                  <div className="mt-8 space-y-2">
+                    <p className="text-xs font-medium text-[var(--muted)] mb-3">Connections</p>
+                    {result.edges.map((edge, i) => {
+                      const fromNode = result.nodes.find(n => n.id === edge.from);
+                      const toNode = result.nodes.find(n => n.id === edge.to);
+                      return (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          <span className="text-[var(--ink)]">{fromNode?.value ?? edge.from}</span>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                          </svg>
+                          <span className="text-[var(--muted)] italic">{edge.relation}</span>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                          </svg>
+                          <span className="text-[var(--ink)]">{toNode?.value ?? edge.to}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Legend */}
             <div className="mt-6 flex flex-wrap gap-4 text-xs">
