@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     NEO4J_URI: str = ""
     NEO4J_USERNAME: str = ""
     NEO4J_PASSWORD: str = ""
+    NEO4J_DATABASE: str = ""
 
     QDRANT_URL: str = ""
     QDRANT_API_KEY: str = ""
