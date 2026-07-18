@@ -5,7 +5,7 @@ import {
   DetectionStats,
 } from "@/types/phishing";
 
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 export async function analyzeURL(
   url: string
@@ -58,25 +58,51 @@ export async function analyzeSMS(
 }
 
 export async function getHistory(): Promise<DetectionHistory[]> {
-  const response = await fetch(
-    `${BASE_URL}/api/phishing/history`
-  );
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/phishing/history`
+    );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch history");
+    if (!response.ok) {
+      console.warn("Failed to fetch history, returning empty");
+      return [];
+    }
+
+    const data = await response.json();
+
+    // Handle DB-unavailable response gracefully
+    if (data && data.error) {
+      return [];
+    }
+
+    return data;
+  } catch (err) {
+    console.error("getHistory error:", err);
+    return [];
   }
-
-  return response.json();
 }
 
 export async function getStats(): Promise<DetectionStats> {
-  const response = await fetch(
-    `${BASE_URL}/api/phishing/stats`
-  );
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/phishing/stats`
+    );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch stats");
+    if (!response.ok) {
+      console.warn("Failed to fetch stats, returning zeros");
+      return { total_scans: 0, scan_types: {}, risk_levels: {} };
+    }
+
+    const data = await response.json();
+
+    // Handle DB-unavailable response gracefully
+    if (data && data.error) {
+      return { total_scans: 0, scan_types: {}, risk_levels: {} };
+    }
+
+    return data;
+  } catch (err) {
+    console.error("getStats error:", err);
+    return { total_scans: 0, scan_types: {}, risk_levels: {} };
   }
-
-  return response.json();
 }

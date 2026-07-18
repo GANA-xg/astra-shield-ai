@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from agents.phishing_agent.url_analyzer import analyze_url
 
+from core.logging import logger
 from db.database import get_db
 from db.crud import (
     save_detection,
@@ -46,16 +47,20 @@ def analyze_url_endpoint(
     try:
         result = analyze_url(str(request.url))
 
-        save_detection(
-            db=db,
-            scan_type="url",
-            input_text=str(request.url),
-            risk_score=result["risk_score"],
-            risk_level=result["risk_level"],
-            recommendation=result["recommendation"],
-            ml_probability=result.get("ml_probability", 0.0),
-            signals=result["signals"],
-        )
+        try:
+            save_detection(
+                db=db,
+                scan_type="url",
+                input_text=str(request.url),
+                risk_score=result["risk_score"],
+                risk_level=result["risk_level"],
+                recommendation=result["recommendation"],
+                ml_probability=result.get("ml_probability", 0.0),
+                signals=result["signals"],
+            )
+        except Exception as save_err:
+            # DB persistence is non-critical
+            logger.warning(f"Failed to save detection: {save_err}")
 
         return result
 
@@ -79,24 +84,32 @@ def detection_history(
     limit: int = 50,
     db: Session = Depends(get_db),
 ):
-    detections = get_detection_history(db, limit)
+    try:
+        detections = get_detection_history(db, limit)
 
-    return [
-        {
-            "id": d.id,
-            "scan_type": d.scan_type,
-            "input_text": d.input_text,
-            "risk_score": d.risk_score,
-            "risk_level": d.risk_level,
-            "recommendation": d.recommendation,
-            "ml_probability": d.ml_probability,
-            "signals": d.signals,
-            "created_at": d.created_at,
-        }
-        for d in detections
-    ]
+        return [
+            {
+                "id": d.id,
+                "scan_type": d.scan_type,
+                "input_text": d.input_text,
+                "risk_score": d.risk_score,
+                "risk_level": d.risk_level,
+                "recommendation": d.recommendation,
+                "ml_probability": d.ml_probability,
+                "signals": d.signals,
+                "created_at": d.created_at,
+            }
+            for d in detections
+        ]
+    except Exception as exc:
+        logger.warning(f"Failed to fetch history: {exc}")
+        return {"error": "Database unavailable", "detections": []}
 
 
 @router.get("/stats")
 def detection_stats(db: Session = Depends(get_db)):
-    return get_detection_stats(db)
+    try:
+        return get_detection_stats(db)
+    except Exception as exc:
+        logger.warning(f"Failed to fetch stats: {exc}")
+        return {"error": "Database unavailable", "total_scans": 0}

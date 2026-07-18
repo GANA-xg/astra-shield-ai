@@ -5,6 +5,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # ==========================
+    # CORS
+    # ==========================
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ]
+
+    # ==========================
     # Application
     # ==========================
     APP_NAME: str = "Astra Shield AI"
@@ -31,7 +41,7 @@ class Settings(BaseSettings):
     # ==========================
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
-    DATABASE_URL: str      
+    DATABASE_URL: str = ""
     NEO4J_URI: str = ""
     NEO4J_USERNAME: str = ""
     NEO4J_PASSWORD: str = ""

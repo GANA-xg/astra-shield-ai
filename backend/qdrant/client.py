@@ -1,20 +1,33 @@
-from qdrant_client import QdrantClient
-
 from core.config import settings
 
+_client = None
 
-client = QdrantClient(
-    url=settings.QDRANT_URL,
-    api_key=settings.QDRANT_API_KEY,
-)
+
+def _get_client():
+    global _client
+    if _client is not None:
+        return _client
+    try:
+        from qdrant_client import QdrantClient
+
+        _client = QdrantClient(
+            url=settings.QDRANT_URL,
+            api_key=settings.QDRANT_API_KEY,
+        )
+    except Exception:
+        _client = None
+    return _client
 
 
 def check_qdrant_connection() -> bool:
     """
     Verify that the application can connect to Qdrant.
     """
+    c = _get_client()
+    if c is None:
+        return False
     try:
-        client.get_collections()
+        c.get_collections()
         return True
     except Exception:
         return False

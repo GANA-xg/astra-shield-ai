@@ -14,7 +14,14 @@ export async function getStats(): Promise<DashboardStats> {
   if (!res.ok)
     throw new Error("Failed to fetch stats");
 
-  return res.json();
+  const data = await res.json();
+
+  // Handle DB-unavailable response gracefully
+  if (data.error) {
+    return { total_scans: 0, scan_types: {}, risk_levels: {} };
+  }
+
+  return data;
 }
 
 export async function getHistory(): Promise<Detection[]> {
@@ -28,6 +35,17 @@ export async function getHistory(): Promise<Detection[]> {
   if (!res.ok)
     throw new Error("Failed to fetch history");
 
+<<<<<<< HEAD
+  const data = await res.json();
+
+  // Handle DB-unavailable response gracefully
+  if (data.error) {
+    return [];
+  }
+
+  return data;
+}
+=======
   return res.json();
 }
 
@@ -95,3 +113,4 @@ export async function getShortestPath(
 
   return res.json();
 }
+>>>>>>> origin/main

@@ -1,28 +1,52 @@
-import React from "react";
+"use client";
 
-const ResultCard = ({ result }) => {
+import { useState } from "react";
+import { analyzeSMS } from "@/lib/api";
+import { SMSResponse } from "@/types/phishing";
+
+interface SMSScannerProps {
+  onResult: (result: SMSResponse) => void;
+}
+
+export default function SMSScanner({ onResult }: SMSScannerProps) {
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleAnalyze() {
+    if (!message.trim()) { setError("Please enter an SMS message."); return; }
+    setLoading(true);
+    setError("");
+    try {
+      const result = await analyzeSMS(message);
+      onResult(result);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to analyze SMS.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div>
-      {/* Other cards */}
-      <div className="rounded-xl border border-orange-200 bg-orange-50 p-5">
-        <h3 className="text-sm font-semibold text-slate-800">Blacklist Matches</h3>
-        <div className="mt-4 space-y-2">
-          {Object.entries(result.blacklists).map(([key, value]) => (
-            <div
-              key={key}
-              className="flex items-center justify-between rounded-md bg-white px-3 py-2"
-            >
-              <span className="font-medium text-slate-900">{key}</span>
-              <span className={value ? "font-bold text-red-700" : "font-bold text-green-700"}>
-                {value ? "Matched" : "Not Matched"}
-              </span>
-            </div>
-          ))}
-        </div>
+      <textarea
+        rows={6}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Paste the SMS message here..."
+        className="input-field h-auto min-h-[120px] resize-none"
+      />
+      <div className="mt-5 flex justify-end">
+        <button onClick={handleAnalyze} disabled={loading} className="btn-primary">
+          {loading ? "Analyzing..." : "Analyze SMS"}
+        </button>
       </div>
-      {/* Other cards */}
+      {error && (
+        <div className="mt-5 p-4 rounded-[var(--radius-sm)] bg-[rgba(255,56,92,0.1)] border border-[rgba(255,56,92,0.2)] text-[var(--error)] text-sm">
+          {error}
+        </div>
+      )}
     </div>
   );
-};
-
-export default ResultCard;
+}

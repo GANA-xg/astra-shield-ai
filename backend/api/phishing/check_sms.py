@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import re
-from db.database import get_db
-from db.crud import save_detection
+
+from core.logging import logger
 
 router = APIRouter(
     prefix="/api/phishing",
@@ -76,18 +76,25 @@ def check_sms(request: SMSRequest):
         level = "LOW"
         recommendation = "Likely safe"
 
-    db = next(get_db())
+    # Persist result to DB if available (non-critical)
+    try:
+        from db.database import get_db
+        from db.crud import save_detection
 
-    save_detection(
-        db=db,
-        scan_type="sms",
-        input_text=text,
-        risk_score=score,
-        risk_level=level,
-        recommendation=recommendation,
-        ml_probability=None,
-        signals=signals,
-    )
+        db = next(get_db())
+        save_detection(
+            db=db,
+            scan_type="sms",
+            input_text=text,
+            risk_score=score,
+            risk_level=level,
+            recommendation=recommendation,
+            ml_probability=None,
+            signals=signals,
+        )
+        db.close()
+    except Exception as exc:
+        logger.warning(f"Failed to persist SMS detection: {exc}")
 
     return {
         "message": text,

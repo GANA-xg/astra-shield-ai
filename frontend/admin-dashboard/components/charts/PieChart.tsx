@@ -8,41 +8,32 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const COLORS = [
-  "#22c55e",
-  "#facc15",
-  "#fb923c",
-  "#ef4444",
-];
+const COLORS = ["#10b981", "#f59e0b", "#f97316", "#ff385c"];
 
-export default function RiskPieChart({
-  data,
-}: {
-  data: any[];
-}) {
+interface ChartData {
+  name: string;
+  value: number;
+}
+
+export default function RiskPieChart({ data }: { data: ChartData[] }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6">
-      <h2 className="text-xl font-bold text-white mb-5">
-        Risk Distribution
-      </h2>
-
+    <div className="card-flat p-6">
+      <h2 className="text-lg font-semibold text-[var(--ink)] mb-4">Risk Distribution</h2>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={110}
-          >
+          <Pie data={data} dataKey="value" nameKey="name" outerRadius={110}>
             {data.map((_, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              background: "#222222",
+              border: "1px solid #333333",
+              borderRadius: "8px",
+              color: "#f5f5f5",
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

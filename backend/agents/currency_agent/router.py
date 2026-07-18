@@ -21,6 +21,9 @@ async def predict(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    result = analyze_currency(str(file_path))
-
-    return result
+    try:
+        result = analyze_currency(str(file_path))
+        return result
+    finally:
+        if file_path.exists():
+            file_path.unlink()
