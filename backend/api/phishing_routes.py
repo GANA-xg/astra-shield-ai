@@ -29,10 +29,21 @@ class URLResponse(BaseModel):
     safe_browsing: dict
     blacklists: dict
     ml_probability: float
+    ml_classification: str | None = None
+    ml_top_contributors: list[dict] | None = None
+    classification: str
     risk_score: int
     risk_level: str
-    recommendation: str
+    confidence: float
+    ml_score: float
+    google_safe_browsing: str
+    virus_total: str
+    ssl_status: str
+    domain_age: str
+    brand_similarity: str
     signals: list[str]
+    recommendation: str
+    explanations: list[str]
 
 
 @router.post(

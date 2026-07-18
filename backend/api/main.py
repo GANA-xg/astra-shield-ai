@@ -41,6 +41,8 @@ app.add_middleware(LoggingMiddleware)
 @app.on_event("startup")
 async def startup_event():
     refresh_feeds()
+    from ml.predict import load_model
+    load_model()
 
 
 app.include_router(health_router)
