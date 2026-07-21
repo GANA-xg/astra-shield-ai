@@ -17,45 +17,61 @@ Astra Shield AI provides proactive AI-driven detection, guidance, and reporting 
 ## Target Users
 
 ### Citizens
-- Scam detection
-- Phishing analysis
+- Scam detection (call transcripts, messages)
+- Phishing URL analysis
 - Fake currency verification
-- Cybercrime reporting
-- Safety guidance
+- Cybercrime reporting guidance
+- AI-powered safety advisor
 
 ### Investigators
-- Fraud graph visualization
-- Case management
-- Pattern analysis
-- Evidence organization
+- Fraud graph visualization (Neo4j)
+- Risk scoring for accounts
+- Court-admissible evidence export
+- Fraud ring detection
+- Money flow tracing
 
 ### Administrators
-- User management
-- Agent monitoring
-- Analytics dashboard
-- System configuration
+- System health monitoring
+- Agent performance tracking
+- API usage analytics
 
 ---
 
-## MVP Scope
+## MVP Scope (Implemented)
 
-The first version will include:
+### Core AI Agents
+1. **Citizen Safety Agent** - Gemini-powered cybersecurity guidance
+2. **Scam Detection Agent** - Transcript analysis with digital arrest detection
+3. **Phishing Detection Agent** - ML-based URL classification (XGBoost)
+4. **Currency Detection Agent** - CNN image classification (EfficientNetB3)
+5. **Fraud Graph Agent** - Neo4j graph analysis with risk scoring
 
-- Scam message analysis
-- Phishing URL detection
-- Fake currency image detection
-- Citizen chatbot
-- Fraud graph visualization
-- AI-powered reporting assistant
+### Key Features
+- Real-time scam pattern recognition
+- Digital arrest scam detection (Indian-specific)
+- Court-admissible evidence generation (PDF + JSON)
+- Multi-signal fraud risk engine
+- Grad-CAM visualization for explainability
+- Indian-specific resources (Cyber Crime Portal, 1930 helpline)
+
+### Technical Implementation
+- FastAPI REST API
+- SQLite + Neo4j databases
+- API key authentication
+- 34 passing tests
+- Modular, extensible architecture
 
 ---
 
 ## Future Scope
 
-- Voice scam detection
+- Voice scam detection (real-time call monitoring)
 - Deepfake detection
 - OCR document verification
 - WhatsApp integration
 - Mobile applications
 - Multilingual support
-- Government integration
+- Government API integration (MHA, Cyber Crime Portal)
+- JWT authentication with RBAC
+- Background job queue
+- Real-time notifications

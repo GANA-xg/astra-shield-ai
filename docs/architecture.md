@@ -2,9 +2,7 @@
 
 ## Overview
 
-Astra Shield AI follows a modular, service-oriented architecture. The backend is responsible for API orchestration, AI agent execution, authentication, data persistence, and communication with external services.
-
-The architecture is designed to be scalable, secure, and production-ready.
+Astra Shield AI follows a modular, service-oriented architecture. The backend is built with FastAPI, using SQLite for persistence (PostgreSQL for production), Neo4j for graph relationships, and multiple AI agents for specialized tasks.
 
 ---
 
@@ -15,245 +13,108 @@ The architecture is designed to be scalable, secure, and production-ready.
                          │
                     HTTPS / TLS
                          │
-                  Reverse Proxy
-                    (Nginx)
-                         │
-                ┌─────────────────┐
-                │     FastAPI      │
-                │  API Gateway     │
-                └─────────────────┘
+                  ┌─────────────────┐
+                  │     FastAPI      │
+                  │  API Gateway     │
+                  └─────────────────┘
                          │
       ┌──────────────────┼──────────────────┐
       │                  │                  │
- Authentication     Business Logic     AI Orchestrator
-      │                  │                  │
-      └──────────────┬───┴──────────────────┘
+ API Key Auth      Business Logic     AI Agents
+ (sensitive)           │                  │
+      └──────────────┬─┴──────────────────┘
                      │
          ┌───────────┼────────────┐
          │           │            │
-     PostgreSQL     Redis      Background Jobs
-         │                        │
-         └────────────┬───────────┘
-                      │
-             AI Agent Layer
-                      │
-   ┌────────┬────────┬────────┬────────┬────────┐
-   │        │        │        │        │
-Citizen  Scam   Phishing Currency Fraud Graph
- Agent    Agent    Agent     Agent      Agent
-                      │
-          External AI Models / APIs
+     SQLite       Neo4j       Gemini API
+   (metadata)   (graph)       (LLM)
+         │           │
+         └───────────┘
 ```
 
 ---
 
-# Request Flow
-
-```
-Client
-
-↓
-
-FastAPI Router
-
-↓
-
-Authentication Middleware
-
-↓
-
-Request Validation
-
-↓
-
-Service Layer
-
-↓
-
-AI Agent (if required)
-
-↓
-
-Database / Cache
-
-↓
-
-Response Formatter
-
-↓
-
-Client
-```
-
----
-
-# AI Agent Flow
+# AI Agent Architecture
 
 ```
 User Request
-
-↓
-
+     │
+     ▼
 Agent Router
-
-↓
-
-Determine Required Agent
-
-↓
-
-Execute AI Model
-
-↓
-
-Confidence Scoring
-
-↓
-
-Explanation Generation
-
-↓
-
-Save Results
-
-↓
-
-Return Response
+     │
+     ├── Citizen Agent ──────► Gemini + keyword fallback
+     ├── Scam Agent ─────────► Gemini + rule-based patterns
+     ├── Phishing Agent ─────► XGBoost ML model
+     ├── Currency Agent ─────► EfficientNetB3 CNN
+     └── Fraud Graph Agent ──► Neo4j + risk engine
 ```
 
 ---
 
-# Database Flow
+# Data Flow
 
+## Phishing Detection
 ```
-API
-
-↓
-
-Service Layer
-
-↓
-
-Repository Layer
-
-↓
-
-PostgreSQL
-
-↓
-
-Return Data
+URL → Feature Extraction (27 features) → XGBoost Model → Risk Score + Explanation
 ```
 
----
-
-# Vector Search Flow (Future)
-
+## Scam Detection
 ```
-Document Upload
+Transcript → Rule-based Patterns + Gemini LLM → Classification + Recommendations
+```
 
-↓
+## Fraud Analysis
+```
+Account → Neo4j Query → Signal Collection → Risk Engine → Risk Score + Breakdown
+```
 
-Chunking
-
-↓
-
-Embedding Generation
-
-↓
-
-Vector Database
-
-↓
-
-Semantic Search
-
-↓
-
-Relevant Chunks
-
-↓
-
-LLM Response
+## Evidence Export
+```
+Account → Subgraph Extraction → JSON Assembly → PDF Rendering → Integrity Hash
 ```
 
 ---
 
-# File Processing Flow
+# Database Schema
 
-```
-File Upload
+## SQLite (Primary)
+- `analyses` - Phishing analysis history
+- `evidence_logs` - Evidence export audit trail
 
-↓
-
-Validation
-
-↓
-
-Virus Scan
-
-↓
-
-Temporary Storage
-
-↓
-
-AI Processing
-
-↓
-
-Permanent Storage
-
-↓
-
-Database Metadata
-```
-
----
-
-# Background Jobs
-
-Used for:
-
-- AI processing
-- File processing
-- Notifications
-- Report generation
-- Scheduled cleanup
-- Analytics aggregation
-
----
-
-# External Integrations
-
-- LLM providers
-- Threat intelligence APIs
-- URL reputation services
-- Email services
-- Object storage
-- Monitoring services
+## Neo4j (Graph)
+- `:Person` - Individual entities
+- `:Account` - Bank accounts
+- `:Device` - Devices (phones, laptops)
+- `[:OWNS]` - Person → Account relationships
+- `[:USED]` - Person → Device relationships
+- `[:TRANSFERRED]` - Account → Account transactions
 
 ---
 
 # Security Layers
 
-1. HTTPS
-2. JWT Authentication
-3. RBAC Authorization
-4. Request Validation
-5. Rate Limiting
-6. Secure File Handling
-7. Audit Logging
+1. **API Key Authentication** - For sensitive fraud endpoints
+2. **CORS Configuration** - Configurable origins
+3. **Request Validation** - Pydantic models
+4. **Integrity Hashing** - SHA-256 for evidence packages
+5. **Audit Logging** - Evidence generation tracking
+
+---
+
+# External Integrations
+
+- **Google Gemini** - LLM for scam detection and citizen advice
+- **Neo4j** - Graph database for fraud networks
+- **OpenPhish** - Phishing URL feed (cached)
+- **XGBoost** - ML model for phishing classification
+- **TensorFlow/EfficientNet** - CNN for currency detection
 
 ---
 
 # Design Principles
 
-- Clean Architecture
-- Separation of Concerns
-- Stateless Services
-- Dependency Injection
-- Repository Pattern
-- Service Layer Pattern
-- Modular AI Agents
-- API-First Design
+- Modular AI agents with clear responsibilities
+- Graceful degradation (Gemini unavailable → keyword fallback)
+- Evidence integrity for legal admissibility
+- API-first design with OpenAPI docs
+- Separation of ML training and inference

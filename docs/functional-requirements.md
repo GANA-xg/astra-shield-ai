@@ -4,59 +4,42 @@
 
 Astra Shield AI provides AI-powered tools for detecting cyber fraud, phishing, fake currency, and suspicious activities while enabling citizens, investigators, and administrators to interact through dedicated interfaces.
 
+**Implementation Status (Hackathon Prototype):**
+- Core AI agents: Implemented
+- Database persistence: SQLite (PostgreSQL for production)
+- Authentication: API key-based for sensitive endpoints (dev mode: open)
+- Background jobs: Synchronous processing (async for production)
+
 ---
 
 # Citizen Features
 
-## Authentication
-- User registration
-- Secure login
-- Password reset
-- JWT authentication
-- Profile management
-
----
-
-## Dashboard
-- View recent analyses
-- View submitted reports
-- AI safety recommendations
-- Notification center
-
----
-
 ## Scam Detection
-Users can submit:
+Users can submit call transcripts or messages for analysis.
 
-- SMS
-- Email
-- WhatsApp message
-- Social media message
-- Screenshot
-- Document
+**Implemented:**
+- Text transcript analysis via Gemini LLM + keyword detection
+- Digital arrest scam pattern recognition (rule-based + LLM)
+- Risk scoring with confidence levels
+- Actionable recommendations
+- Alert generation for critical patterns
 
-The system should:
-- Detect scam indicators
-- Explain why it is suspicious
-- Provide a confidence score
-- Recommend next steps
+**API:** `POST /scam/analyze`, `POST /scam/analyze-and-alert`
 
 ---
 
 ## Phishing Detection
 
-Users can submit:
+Users can submit URLs for phishing analysis.
 
-- URL
-- Website screenshot
-- Email content
+**Implemented:**
+- ML-based URL classification (XGBoost, 27-feature pipeline)
+- Domain reputation analysis
+- Legitimacy scoring
+- Top contributing factors explanation
+- SMS phishing detection
 
-The system should:
-
-- Detect phishing indicators
-- Check domain reputation
-- Analyze suspicious content
-- Generate a risk score
+**API:** `POST /api/phishing/analyze`, `POST /api/phishing/check-sms`
 
 ---
 
@@ -64,130 +47,147 @@ The system should:
 
 Users can upload images of currency notes.
 
-The system should:
+**Implemented:**
+- CNN-based image classification (EfficientNetB3)
+- Binary genuine/fake detection
+- Visual feature extraction (sharpness, security thread)
+- Grad-CAM heatmap visualization (optional)
+- Denomination detection (requires retraining)
 
-- Detect denomination
-- Verify authenticity
-- Highlight suspicious regions
-- Return confidence score
-
----
-
-## Cybercrime Reporting
-
-Users can:
-
-- Create a report
-- Attach evidence
-- Track report status
-- View report history
+**API:** `POST /currency/predict`
 
 ---
 
-## AI Assistant
+## AI Safety Advisor
 
-The assistant should:
+The citizen agent provides cybersecurity guidance.
 
-- Answer cybersecurity questions
-- Explain scam techniques
-- Guide users through reporting
-- Provide prevention tips
+**Implemented:**
+- Gemini-powered conversational AI responses
+- Keyword-based fallback when Gemini unavailable
+- Category classification (OTP, UPI, KYC, phishing, etc.)
+- Risk level assessment
+- Indian-specific resources (Cyber Crime Portal, 1930 helpline)
+- Conversation history support
+
+**API:** `POST /citizen/advice`
 
 ---
 
 # Investigator Features
 
-## Case Dashboard
+## Fraud Graph Analysis
 
-Investigators can:
+Investigators can visualize fraud networks.
 
-- View assigned cases
-- Search reports
-- Update case status
-- Add investigation notes
+**Implemented:**
+- Neo4j graph database for entity relationships
+- Accounts, persons, devices, transactions
+- Fraud ring detection (circular, star, velocity patterns)
+- Money flow tracing
+- Shortest path between accounts
+- Money mule identification
+- Shared device detection
 
----
-
-## Fraud Graph
-
-Investigators can visualize:
-
-- Accounts
-- Phone numbers
-- Email addresses
-- Devices
-- Wallet addresses
-- IP addresses
-
-Relationships between entities should be displayed as an interactive graph.
+**API:** `GET /fraud/money-mules`, `GET /fraud/rings`, `GET /fraud/money-flow/{account}`, `GET /fraud/shortest-path/{source}/{target}`
 
 ---
 
-## Evidence Management
+## Risk Scoring
 
-Investigators can:
+Investigators can assess account risk levels.
 
-- View uploaded evidence
-- Organize files
-- Add comments
-- Export evidence
+**Implemented:**
+- Multi-signal risk engine (6 signal types)
+- Money mule detection, fraud rings, velocity analysis
+- Risk bands: LOW (<30), MEDIUM (30-60), HIGH (60-85), CRITICAL (>85)
+- Detailed breakdown of risk factors
+- Batch risk analysis for all accounts
 
----
-
-## AI Investigation Assistant
-
-The assistant should:
-
-- Summarize reports
-- Identify fraud patterns
-- Recommend related cases
-- Generate investigation insights
+**API:** `GET /fraud/risk/{account}`, `GET /fraud/risk/{account}/detailed`, `GET /fraud/risk-all`
 
 ---
 
-# Administrator Features
+## Court-Admissible Evidence Export
 
-Administrators can:
+Investigators can generate evidence packages for legal proceedings.
 
-- Manage users
-- Manage investigators
-- Configure AI models
-- Monitor system health
-- View analytics
-- Review logs
-- Manage permissions
+**Implemented:**
+- Subgraph extraction for target accounts
+- Structured JSON evidence package
+- PDF report with cover page, risk table, entities, relationships
+- SHA-256 integrity hash for tamper detection
+- Audit logging of evidence generation
+- Case ID generation
+
+**API:** `GET /fraud/evidence/{account}` (PDF), `GET /fraud/evidence/{account}/json`
 
 ---
 
 # AI Agent Features
 
-## Citizen Agent
-- General cybersecurity guidance
+## Citizen Safety Agent
+- Gemini-powered conversational responses
+- Category classification (9 scam types)
+- Risk level assessment
+- Indian-specific safety guidance
 
 ## Scam Detection Agent
-- Scam classification
-- Risk scoring
+- Gemini-based scam classification
+- Digital arrest pattern recognition (rule-based + LLM)
+- Call metadata analysis
+- Alert generation for critical patterns
 
-## Phishing Agent
-- URL analysis
-- Domain inspection
+## Phishing Detection Agent
+- XGBoost ML model (27 features)
+- URL, domain, and content analysis
+- Feature importance explanation
+- OpenPhish feed integration
 
-## Currency Agent
-- Fake currency verification
+## Currency Detection Agent
+- EfficientNetB3 CNN model
+- Visual feature extraction (sharpness, security thread)
+- Grad-CAM visualization
+- Denomination detection (requires retraining)
 
 ## Fraud Graph Agent
-- Relationship discovery
-- Entity linking
+- Neo4j graph queries
+- Multi-signal risk engine
+- Fraud ring detection
+- Court-admissible evidence export
 
 ---
 
 # System Features
 
-- File uploads
-- Image processing
-- Background jobs
-- Audit logging
-- Notifications
-- API authentication
+## Implemented
+- FastAPI REST API
+- SQLite database (PostgreSQL for production)
+- API key authentication for sensitive endpoints
+- CORS configuration
+- Request ID tracking
+- Structured logging
+- Health monitoring endpoint
+- File upload handling
+
+## Production Scope (Future)
 - Rate limiting
-- Health monitoring
+- Background job queue
+- Real-time notifications
+- Comprehensive audit logging
+
+---
+
+# Future Scope
+
+## Authentication (Not Implemented)
+The following authentication features are planned for production:
+
+- User registration
+- Secure login
+- Password reset
+- JWT authentication
+- Profile management
+- Role-based access control (RBAC)
+- OAuth2 / social login
+- Session management

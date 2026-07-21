@@ -6,30 +6,29 @@
   "positive_samples": 134850,
   "negative_samples": 100520,
   "test_metrics": {
-    "accuracy": 0.9978331987933892,
-    "precision": 0.9965257244234181,
-    "recall": 0.9997033741193919,
-    "f1": 0.9981120201384519,
-    "roc_auc": 0.9986374707656633,
-    "pr_auc": 0.9983053587949321,
-    "mcc": 0.9955767344149139,
-    "balanced_accuracy": 0.9975138438444154,
-    "optimal_threshold": 0.40595959595959596
+    "accuracy": 0.9979394145388112,
+    "precision": 0.9965630658930485,
+    "recall": 0.999851687059696,
+    "f1": 0.9982046678635548,
+    "roc_auc": 0.9985971188603099,
+    "pr_auc": 0.9982067777743298,
+    "mcc": 0.9957943164635061,
+    "balanced_accuracy": 0.9976128709870704,
+    "optimal_threshold": 0.37626262626262624
   },
-  "optimal_threshold": 0.40595959595959596,
+  "optimal_threshold": 0.37626262626262624,
   "best_params": {
-    "subsample": 0.8,
+    "subsample": 1.0,
     "reg_lambda": 0.1,
-    "reg_alpha": 0.1,
-    "n_estimators": 300,
-    "min_child_weight": 11,
-    "max_depth": 12,
+    "reg_alpha": 1.0,
+    "n_estimators": 500,
+    "min_child_weight": 3,
+    "max_depth": 8,
     "learning_rate": 0.01,
-    "gamma": 0.1,
-    "colsample_bytree": 0.5
+    "gamma": 0,
+    "colsample_bytree": 0.6
   },
-  "training_date": "2026-07-18 22:45:19",
-  "calibration_applied": false,
-  "overfitting_detected": false,
-  "targets_met": true
+  "training_date": "2026-07-21 11:13:20",
+  "retrained_after_legitimacy_score_rebuild": true,
+  "dataset_limitation": "PhiUSIIL labels brand login pages as phishing, creating a trivially separable dataset. High accuracy reflects dataset bias, not real-world difficulty."
 }

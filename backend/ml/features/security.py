@@ -98,15 +98,47 @@ def extract_security_features(url: str) -> Dict[str, float]:
     # Double dash detection (phishers use -- to make domains look like valid names)
     features["double_hyphen_in_domain"] = 1.0 if "--" in hostname else 0.0
 
-    # Legitimacy composite score (higher = more legitimate signal)
-    legit_score = 0.0
-    legit_score += 3.0 if features["is_https"] else 0.0
-    legit_score += 2.0 if hostname.startswith("www.") else 0.0
-    legit_score += 2.0 if tld in {"com", "org", "net", "edu", "gov"} else 0.0
-    if tld in {"tk", "ml", "ga", "cf", "gq", "xyz"}:
-        legit_score -= 3.0
+    # Domain legitimacy composite — rebuilt to avoid dataset bias.
+    # The old version used is_https + www + trusted-TLD, which created
+    # a spurious correlation in the PhiUSIIL dataset (where login pages
+    # are labeled as phishing, making HTTPS+www URLs trivially separable).
+    # This version uses signals that are harder to correlate with labels:
+    #   - Domain entropy (randomness of the domain name)
+    #   - Path complexity (how deep/suspicious the URL path is)
+    #   - Character diversity (mix of letters, digits, special chars)
+    #   - TLD trustworthiness (kept but weighted lower)
+    import math
+    _hostname = hostname.lower().strip(".")
+    _hostname_entropy = 0.0
+    if _hostname:
+        freq = {}
+        for c in _hostname:
+            freq[c] = freq.get(c, 0) + 1
+        length = len(_hostname)
+        _hostname_entropy = -sum((count / length) * math.log2(count / length) for count in freq.values())
 
-    features["legitimacy_score"] = max(0.0, legit_score)
+    _path_parts = [p for p in (parsed.path or "").split("/") if p]
+    _path_depth = len(_path_parts)
+    _path_has_params = 1.0 if parsed.query else 0.0
+
+    _alphanum = sum(1 for c in _hostname if c.isalnum())
+    _alpha_ratio = _alphanum / max(len(_hostname), 1)
+    _digit_ratio_host = sum(1 for c in _hostname if c.isdigit()) / max(len(_hostname), 1)
+
+    _legit = 0.0
+    _legit += min(_hostname_entropy / 4.0, 1.0) * 1.0     # Higher entropy = more random = less legitimate
+    _legit += (1.0 - min(_digit_ratio_host, 1.0)) * 0.5    # Fewer digits in domain = more legitimate
+    _legit += min(_path_depth / 3.0, 1.0) * -0.3           # Deeper paths slightly less legitimate
+    _legit += _path_has_params * -0.2                        # Query params = less legitimate
+    if tld in {"com", "org", "net", "edu", "gov", "in"}:
+        _legit += 0.8
+    elif tld in {"tk", "ml", "ga", "cf", "gq", "xyz", "top", "buzz"}:
+        _legit -= 1.0
+    if hostname.startswith("www."):
+        _legit += 0.3
+    if features["is_https"]:
+        _legit += 0.5
+    features["legitimacy_score"] = max(-2.0, min(3.0, _legit))
 
     # Number of directories in path
     path_parts = [p for p in path.split("/") if p]

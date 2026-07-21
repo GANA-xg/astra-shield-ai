@@ -3,7 +3,7 @@ Pydantic schemas for Scam Call Detection Agent.
 """
 
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 class ScamRequest(BaseModel):
@@ -38,3 +38,20 @@ class ScamResponse(BaseModel):
     reason: str
 
     recommendation: List[str]
+
+    is_digital_arrest_pattern: bool = Field(
+        default=False,
+        description="True if the transcript matches the digital arrest scam playbook"
+    )
+
+    digital_arrest_confidence: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score (0-1) for digital arrest scam classification"
+    )
+
+    digital_arrest_signals: List[str] = Field(
+        default_factory=list,
+        description="Specific signals that indicate a digital arrest pattern"
+    )

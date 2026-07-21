@@ -54,3 +54,56 @@ class Detection(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+
+class EvidenceLog(Base):
+    __tablename__ = "evidence_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    case_id = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+    )
+
+    account_number = Column(
+        String(50),
+        nullable=False,
+    )
+
+    risk_score = Column(
+        Float,
+        nullable=False,
+    )
+
+    risk_level = Column(
+        String(20),
+        nullable=False,
+    )
+
+    integrity_hash = Column(
+        String(64),
+        nullable=False,
+    )
+
+    entity_count = Column(
+        Integer,
+        nullable=False,
+    )
+
+    relationship_count = Column(
+        Integer,
+        nullable=False,
+    )
+
+    requested_by = Column(
+        String(100),
+        nullable=True,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )

@@ -1,11 +1,11 @@
 {
-  "subsample": 0.8,
+  "subsample": 1.0,
   "reg_lambda": 0.1,
-  "reg_alpha": 0.1,
-  "n_estimators": 300,
-  "min_child_weight": 11,
-  "max_depth": 12,
+  "reg_alpha": 1.0,
+  "n_estimators": 500,
+  "min_child_weight": 3,
+  "max_depth": 8,
   "learning_rate": 0.01,
-  "gamma": 0.1,
-  "colsample_bytree": 0.5
+  "gamma": 0,
+  "colsample_bytree": 0.6
 }

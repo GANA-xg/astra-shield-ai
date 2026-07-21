@@ -85,3 +85,6 @@ RECOMMENDATIONS = {
     "high": "Do not interact",
     "critical": "Block immediately",
 }
+
+# Digital Arrest Scam Detection
+DIGITAL_ARREST_ALERT_THRESHOLD = 0.45  # Confidence >= 0.45 triggers alert
